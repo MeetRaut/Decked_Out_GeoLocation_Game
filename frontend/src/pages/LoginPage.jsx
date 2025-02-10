@@ -177,7 +177,7 @@ const LoginPage = () => {
                   <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-red-800">
                     NXT LVL
                   </span>
-                  <GiDeathSkull className="text-red-600" />
+                  <GiCardJoker className="text-red-600" />
                 </div>
               </motion.div>
 
