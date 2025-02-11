@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { GiCardJoker } from "react-icons/gi";
+import spade from "../assets/spade.png";
 
 const locations = Array.from({ length: 13 }, (_, i) => ({
   id: i + 1,
@@ -12,21 +13,24 @@ const locations = Array.from({ length: 13 }, (_, i) => ({
     "https://imgs.search.brave.com/1_cKyTdSLoq4_IDgHYWkVuZr94wzMBjbBFtxMeBABLk/rs:fit:860:0:0:0/g:ce/aHR0cDovL2xnaW1h/Z2VzLnMzLmFtYXpv/bmF3cy5jb20vZGF0/YS9pbWFnZW1hbmFn/ZXIvNzU2NS9wdXp6/bGUzMDAuanBn",
 }));
 
-const SpadeIcon = ({ filled, size = 24 }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    width={size}
-    height={size}
-    className="mx-0.5"
-  >
-    <path
-      d="M12 2C9.5 5.5 6 8 2 9.5C5 11 9 14.5 12 21C15 14.5 19 11 22 9.5C18 8 14.5 5.5 12 2Z"
-      fill={filled ? "darkred" : "darkgray"}
-      stroke={filled ? "darkred" : "darkgray"}
+const SpadeIcon = ({ filled, size }) => {
+  const spadeImage = spade; // Path to your PNG image
+
+  return (
+    <img
+      src={spadeImage}
+      alt="Spade Icon"
+      style={{
+        width: size,
+        height: size,
+        filter: filled
+          ? "invert(36%) sepia(89%) saturate(7482%) hue-rotate(358deg) brightness(91%) contrast(102%)" // Apply a full red for filled state
+          : "grayscale(100%) invert(10%) brightness(500%)", // Make the icon grayscale for not filled
+      }}
+      className="mx-0.5"
     />
-  </svg>
-);
+  );
+};
 
 const Homepage = () => {
   const [teamName, setTeamName] = useState("Team Shadow");
@@ -108,6 +112,7 @@ const Homepage = () => {
 
   return (
     <div className="min-h-screen bg-black text-white px-4 py-6">
+
       {/* Title */}
       <motion.div
         className="text-center mb-6"
@@ -149,7 +154,7 @@ const Homepage = () => {
       )}
 
       {/* card */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {locationsData.map((location) => (
           <motion.div
             key={location.id}
@@ -170,13 +175,14 @@ const Homepage = () => {
               >
                 #{location.id}
               </div>
+
+              {/*Difficulty indicator*/}
               <div className="flex items-center space-x-1">
-                {/* Reduced size of Spade container and spades */}
                 {[0, 1, 2, 3, 4].map((index) => (
                   <SpadeIcon
                     key={index}
                     filled={index < location.difficulty}
-                    className="w-5 h-5"
+                    size= "1.7rem" // Adjust size if needed
                   />
                 ))}
               </div>
@@ -211,7 +217,10 @@ const Homepage = () => {
               <h2 className="text-2xl font-bold text-white">
                 {selectedLocation.name}
               </h2>
-              <button className="text-white text-3xl" onClick={handleCloseModal}>
+              <button
+                className="text-white text-3xl"
+                onClick={handleCloseModal}
+              >
                 &times;
               </button>
             </div>
