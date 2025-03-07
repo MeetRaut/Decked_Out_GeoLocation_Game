@@ -2,7 +2,7 @@
     {
       "id": 1,
       "name": "Location 1",
-      "image": "./src/assets/GeoLocation_images/01.jpeg",
+      "image": "https://drive.google.com/file/d/1Gdc07QNIzYjMxtQBmXGuzOtrtWaoZ0In/view?usp=drive_link",
       "difficulty": 3
     },
     {
