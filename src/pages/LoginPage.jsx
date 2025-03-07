@@ -175,7 +175,7 @@ const LoginPage = () => {
                 <div className="flex items-center justify-center gap-2 text-3xl font-extrabold">
                   <GiCardJoker className="text-red-600" />
                   <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-red-800">
-                    NXT LVL
+                    Decked Out
                   </span>
                   <GiCardJoker className="text-red-600" />
                 </div>
