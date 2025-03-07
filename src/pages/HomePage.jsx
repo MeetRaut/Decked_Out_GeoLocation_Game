@@ -1,31 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { GiCardJoker } from "react-icons/gi";
 import spade from "../assets/spade.png";
-
-const locations = Array.from({ length: 13 }, (_, i) => ({
-  id: i + 1,
-  name: `Location ${i + 1}`,
-  image: null,
-  submitted: false,
-  difficulty: Math.floor(Math.random() * 5 + 1),
-  placeholderImage:
-    "https://imgs.search.brave.com/1_cKyTdSLoq4_IDgHYWkVuZr94wzMBjbBFtxMeBABLk/rs:fit:860:0:0:0/g:ce/aHR0cDovL2xnaW1h/Z2VzLnMzLmFtYXpv/bmF3cy5jb20vZGF0/YS9pbWFnZW1hbmFn/ZXIvNzU2NS9wdXp6/bGUzMDAuanBn",
-}));
+import data from "../assets/data.json"; // Import JSON data
 
 const SpadeIcon = ({ filled, size }) => {
-  const spadeImage = spade; // Path to your PNG image
-
   return (
     <img
-      src={spadeImage}
+      src={spade}
       alt="Spade Icon"
       style={{
         width: size,
         height: size,
         filter: filled
-          ? "invert(36%) sepia(89%) saturate(7482%) hue-rotate(358deg) brightness(91%) contrast(102%)" // Apply a full red for filled state
-          : "grayscale(100%) invert(10%) brightness(500%)", // Make the icon grayscale for not filled
+          ? "invert(36%) sepia(89%) saturate(7482%) hue-rotate(358deg) brightness(91%) contrast(102%)"
+          : "grayscale(100%) invert(10%) brightness(500%)",
       }}
       className="mx-0.5"
     />
@@ -33,48 +22,44 @@ const SpadeIcon = ({ filled, size }) => {
 };
 
 const Homepage = () => {
+  const [locations, setLocations] = useState([]);
   const [teamName, setTeamName] = useState("Team Shadow");
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [image, setImage] = useState(null);
-  const [locationsData, setLocationsData] = useState(locations);
   const [notification, setNotification] = useState("");
   const [redBackgroundLocation, setRedBackgroundLocation] = useState(null);
   const [isImageZoomed, setIsImageZoomed] = useState(false);
 
-  // Handle image upload
+  useEffect(() => {
+    setLocations(data.map((location) => ({ ...location, submitted: false })));
+  }, []);
+
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
-
-    // Check if a file is selected
     if (file) {
-      const maxSize = 2 * 1024 * 1024; // 2MB in bytes
-
-      // If the file size exceeds the limit
+      const maxSize = 2 * 1024 * 1024;
       if (file.size > maxSize) {
-        setNotification(
-          "File size exceeds the 2MB limit. Please upload a smaller file."
-        );
-        setImage(null); // Clear the image input to prevent oversized files from being used
+        setNotification("File size exceeds 2MB. Please upload a smaller file.");
+        setImage(null);
       } else {
-        setImage(file); // Set the image if file size is valid
-        setNotification(""); // Clear any previous error message if file is valid
+        setImage(file);
+        setNotification("");
       }
     }
   };
 
   const handleSubmit = (locationId) => {
-    // Ensure the image is valid and under the size limit before submitting
     if (!image) {
       setNotification("No image uploaded.");
       return;
     }
-    const updatedLocations = locationsData.map((location) =>
+    const updatedLocations = locations.map((location) =>
       location.id === locationId ? { ...location, submitted: true } : location
     );
-    setLocationsData(updatedLocations);
+    setLocations(updatedLocations);
     setNotification("Image successfully uploaded!");
-    setTimeout(() => setNotification(""), 3000); // Hide notification after 3 seconds
-    setSelectedLocation(null); // Close modal
+    setTimeout(() => setNotification(""), 3000);
+    setSelectedLocation(null); // Close modal after submit
   };
 
   const handleCardClick = (location) => {
@@ -82,10 +67,10 @@ const Homepage = () => {
       setRedBackgroundLocation(location.id);
       setNotification("You can only submit an image once for each location.");
       setTimeout(() => {
-        setRedBackgroundLocation(null); // Remove the red background after 3 seconds
-        setNotification(""); // Clear the notification
+        setRedBackgroundLocation(null);
+        setNotification("");
       }, 3000);
-      return; // Don't open the modal
+      return;
     }
     setSelectedLocation(location);
   };
@@ -96,34 +81,23 @@ const Homepage = () => {
     setIsImageZoomed(false); // Reset zoom when closing the modal
   };
 
-  // Calculate submitted and not submitted counts
-  const submittedCount = locationsData.filter(
-    (location) => location.submitted
-  ).length;
-  const notSubmittedCount = locationsData.length - submittedCount;
-
-  const handleImageClick = () => {
-    setIsImageZoomed(!isImageZoomed); // Toggle zoom on image click
-  };
+  // const handleImageClick = () => {
+  //   setIsImageZoomed(!isImageZoomed); // Toggle zoom on image click
+  // };
 
   const handleImageContextMenu = (event) => {
     event.preventDefault(); // Prevent right-click context menu
   };
 
+  const submittedCount = locations.filter((loc) => loc.submitted).length;
+  const notSubmittedCount = locations.length - submittedCount;
+
   return (
     <div className="min-h-screen bg-black text-white px-4 py-6">
-
-      {/* Title */}
       <motion.div
         className="text-center mb-6"
-        animate={{
-          textShadow: ["0 0 8px #ef4444", "0 0 16px #ef4444"],
-        }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          repeatType: "reverse",
-        }}
+        animate={{ textShadow: ["0 0 8px #ef4444", "0 0 16px #ef4444"] }}
+        transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
       >
         <h2 className="text-2xl font-bold text-white mb-2">
           TSEC Code <span className="text-red-600">Tantra</span>
@@ -153,63 +127,52 @@ const Homepage = () => {
         </div>
       )}
 
-      {/* card */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {locationsData.map((location) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {locations.map((location) => (
           <motion.div
             key={location.id}
             className={`relative p-6 rounded-lg shadow-lg cursor-pointer transition transform ${
               redBackgroundLocation === location.id
                 ? "bg-red-800"
                 : "bg-gray-800"
-            } border-2 
-            ${location.submitted ? "border-green-500" : "border-red-600"}`}
+            } border-2 ${
+              location.submitted ? "border-green-500" : "border-red-600"
+            }`}
             onClick={() => handleCardClick(location)}
-            style={{ maxWidth: "400px", margin: "0 auto" }}
           >
             <div className="flex items-center justify-between mb-2">
-              {/* Card Number */}
               <div
-                className={`text-white text-s font-bold px-2 py-1 rounded-md shadow-md
-                ${location.submitted ? "bg-green-500" : "bg-red-600"}`}
+                className={`text-white text-sm font-bold px-2 py-1 rounded-md shadow-md ${
+                  location.submitted ? "bg-green-500" : "bg-red-600"
+                }`}
               >
                 #{location.id}
               </div>
-
-              {/*Difficulty indicator*/}
               <div className="flex items-center space-x-1">
-                {[0, 1, 2, 3, 4].map((index) => (
+                {[...Array(5)].map((_, index) => (
                   <SpadeIcon
                     key={index}
                     filled={index < location.difficulty}
-                    size= "1.7rem" // Adjust size if needed
+                    size="1.7rem"
                   />
                 ))}
               </div>
-
-              <div
+              <GiCardJoker
                 className={`text-5xl ${
                   location.submitted ? "text-green-500" : "text-red-600"
                 }`}
-              >
-                <GiCardJoker />
-              </div>
-            </div>
-
-            <div className="mt-2">
-              <img
-                src={location.placeholderImage}
-                alt="Location"
-                className="w-full h-64 object-cover rounded-md"
-                onContextMenu={handleImageContextMenu}
-                draggable="false"
               />
             </div>
+            <img
+              src={location.image}
+              alt={location.name}
+              className="w-full h-auto max-h-[500px] object-cover rounded-md"
+            />
           </motion.div>
         ))}
       </div>
 
-      {/* Modal for Image Upload */}
+      {/* Modal for Image Upload - This part was missing */}
       {selectedLocation && !selectedLocation.submitted && (
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
           <div className="bg-gray-900 p-6 rounded-lg shadow-lg max-w-md w-full">
@@ -237,14 +200,14 @@ const Homepage = () => {
               className={`w-full mb-4 overflow-hidden cursor-pointer ${
                 isImageZoomed ? "scale-150 transition-transform" : "scale-100"
               }`}
-              onClick={handleImageClick}
+              // onClick={handleImageClick}
             >
               <img
-                src={selectedLocation.placeholderImage}
+                src={selectedLocation.image}
                 alt="Enlarged Location"
                 className="w-full h-auto object-cover rounded-lg transition-transform duration-300"
-                onContextMenu={handleImageContextMenu} // Disable right-click on the enlarged image
-                draggable="false" // Disable dragging the image
+                onContextMenu={handleImageContextMenu}
+                draggable="false"
               />
             </div>
 
