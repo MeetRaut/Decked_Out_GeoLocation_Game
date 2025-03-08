@@ -81,6 +81,7 @@ const LoginPage = () => {
 
     try {
       await signInWithEmailAndPassword(auth, team.email, password);
+      localStorage.setItem("teamName", team.teamName); // Save team name
       navigate("/home");
     } catch (error) {
       setError("Authentication Failed!");

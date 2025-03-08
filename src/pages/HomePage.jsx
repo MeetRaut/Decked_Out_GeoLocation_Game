@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { GiCardJoker } from "react-icons/gi";
 import spade from "../assets/spade.png";
 import data from "../assets/data.json"; // Import JSON data
 
 import { auth, database, ref, set, push, onValue } from "../firebaseConfig";
+
+import { signOut } from "firebase/auth";
 
 const SpadeIcon = ({ filled, size }) => {
   return (
@@ -24,13 +27,21 @@ const SpadeIcon = ({ filled, size }) => {
 };
 
 const Homepage = () => {
+  const navigate = useNavigate();
   const [locations, setLocations] = useState([]);
-  const [teamName, setTeamName] = useState("Team Shadow");
+  const [teamName, setTeamName] = useState("");
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [image, setImage] = useState(null);
   const [notification, setNotification] = useState("");
   const [redBackgroundLocation, setRedBackgroundLocation] = useState(null);
   const [isImageZoomed, setIsImageZoomed] = useState(false);
+
+  useEffect(() => {
+    const storedTeamName = localStorage.getItem("teamName");
+    if (storedTeamName) {
+      setTeamName(storedTeamName);
+    }
+  }, []);
 
   useEffect(() => {
     setLocations(data.map((location) => ({ ...location, submitted: false })));
@@ -56,6 +67,12 @@ const Homepage = () => {
 
     fetchImages();
   }, [locations]); // Run only when locations change
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    localStorage.removeItem("teamName"); // Remove team name on logout
+    navigate("/");
+  };
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -308,6 +325,10 @@ const Homepage = () => {
           </div>
         </div>
       )}
+
+      <button onClick={handleLogout} className="bg-red-600 px-4 py-2 rounded-md text-white">
+        Logout
+      </button>
     </div>
   );
 };
