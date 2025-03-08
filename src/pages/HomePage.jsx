@@ -4,6 +4,8 @@ import { GiCardJoker } from "react-icons/gi";
 import spade from "../assets/spade.png";
 import data from "../assets/data.json"; // Import JSON data
 
+import { auth, database, ref, set, push, onValue } from "../firebaseConfig";
+
 const SpadeIcon = ({ filled, size }) => {
   return (
     <img
@@ -34,6 +36,27 @@ const Homepage = () => {
     setLocations(data.map((location) => ({ ...location, submitted: false })));
   }, []);
 
+  useEffect(() => {
+    if (!locations.length) return; // Ensure locations are loaded before fetching images
+
+    const fetchImages = () => {
+      const imagesRef = ref(database, `uploads/${teamName}`);
+      onValue(imagesRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          const updatedLocations = locations.map((loc) => ({
+            ...loc,
+            submitted: data[loc.id] ? true : false, // If exists, mark as submitted
+            imageUrl: data[loc.id] ? Object.values(data[loc.id])[0].url : null,
+          }));
+          setLocations(updatedLocations);
+        }
+      });
+    };
+
+    fetchImages();
+  }, [locations]); // Run only when locations change
+
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -48,18 +71,66 @@ const Homepage = () => {
     }
   };
 
-  const handleSubmit = (locationId) => {
+  const handleSubmit = async (locationId) => {
     if (!image) {
       setNotification("No image uploaded.");
       return;
     }
-    const updatedLocations = locations.map((location) =>
-      location.id === locationId ? { ...location, submitted: true } : location
+
+    const user = auth.currentUser;
+    if (!user) {
+      setNotification("User not authenticated!");
+      return;
+    }
+
+    // Generate unique image ID
+    const newImageRef = push(
+      ref(database, `uploads/${teamName}/${locationId}`)
     );
-    setLocations(updatedLocations);
-    setNotification("Image successfully uploaded!");
-    setTimeout(() => setNotification(""), 3000);
-    setSelectedLocation(null); // Close modal after submit
+    const imageId = newImageRef.key;
+
+    const reader = new FileReader();
+    reader.readAsDataURL(image);
+    reader.onloadend = async () => {
+      const base64Image = reader.result;
+
+      try {
+        await set(
+          ref(database, `uploads/${teamName}/${locationId}/${imageId}`),
+          {
+            url: base64Image,
+            timestamp: Date.now(),
+          }
+        );
+
+        setNotification("Image successfully uploaded!");
+        setTimeout(() => setNotification(""), 3000);
+        setSelectedLocation(null);
+      } catch (error) {
+        setNotification("Upload failed!");
+      }
+    };
+
+    // const storageRef = ref(storage, `uploads/${teamName}/location_${locationId}/${image.name}`);
+
+    // try {
+    //   await uploadBytes(storageRef, image);
+    //   const imageUrl = await getDownloadURL(storageRef);
+
+    //   setNotification("Image successfully uploaded!");
+    //   setTimeout(() => setNotification(""), 3000);
+    //   setSelectedLocation(null);
+    // } catch (error) {
+    //   setNotification("Upload failed!");
+    // }
+
+    // const updatedLocations = locations.map((location) =>
+    //   location.id === locationId ? { ...location, submitted: true } : location
+    // );
+    // setLocations(updatedLocations);
+    // setNotification("Image successfully uploaded!");
+    // setTimeout(() => setNotification(""), 3000);
+    // setSelectedLocation(null); // Close modal after submit
   };
 
   const handleCardClick = (location) => {

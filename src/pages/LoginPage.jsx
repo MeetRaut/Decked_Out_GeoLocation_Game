@@ -9,6 +9,20 @@ import {
   GiSpades,
 } from "react-icons/gi";
 
+import { auth } from "../firebaseConfig";  // Import auth from firebaseConfig.js
+import { signInWithEmailAndPassword } from "firebase/auth"; // Import directly from firebase/auth
+
+
+
+const teams = [
+  { teamName: "Alpha", password: "alpha123", teamNumber: "1", email: "team1@example.com" },
+  { teamName: "Beta", password: "beta123", teamNumber: "2", email: "team2@example.com" },
+  { teamName: "Gamma", password: "gamma123", teamNumber: "3", email: "team3@example.com" },
+  { teamName: "Delta", password: "delta123", teamNumber: "4", email: "team4@example.com" },
+  { teamName: "Epsilon", password: "epsilon123", teamNumber: "5", email: "team5@example.com" },
+];
+
+
 const BloodDrop = ({ className, style }) => (
   <svg viewBox="0 0 30 40" className={className} style={style}>
     <path
@@ -56,14 +70,21 @@ const LoginPage = () => {
     setBloodDrops(drops);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!teamName || !password || !teamNumber) {
-      setError("Your fate is sealed if you don't fill all fields.");
+    const team = teams.find((t) => t.teamName === teamName && t.password === password && t.teamNumber === teamNumber);
+
+    if (!team) {
+      setError("Invalid Team Name, Password, or Team Number");
       return;
     }
-    setError("");
-    navigate("/home");
+
+    try {
+      await signInWithEmailAndPassword(auth, team.email, password);
+      navigate("/home");
+    } catch (error) {
+      setError("Authentication Failed!");
+    }
   };
 
   return (
