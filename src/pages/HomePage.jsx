@@ -174,14 +174,14 @@ const Homepage = () => {
 
       {/* Modal for Image Upload - This part was missing */}
       {selectedLocation && !selectedLocation.submitted && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-          <div className="bg-gray-900 p-6 rounded-lg shadow-lg max-w-md w-full">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-white">
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-3">
+          <div className="bg-gray-900 p-4 sm:p-6 rounded-lg shadow-lg w-[90%] sm:w-[80%] md:w-[70%] lg:w-[60%] max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-3 sm:mb-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-white">
                 {selectedLocation.name}
               </h2>
               <button
-                className="text-white text-3xl"
+                className="text-white text-2xl sm:text-3xl"
                 onClick={handleCloseModal}
               >
                 &times;
@@ -190,14 +190,14 @@ const Homepage = () => {
 
             {/* Notification inside the modal */}
             {notification && (
-              <div className="mb-4 p-2 text-white bg-red-600 text-center rounded-lg">
+              <div className="mb-3 sm:mb-4 p-2 text-white bg-red-600 text-center rounded-lg">
                 {notification}
               </div>
             )}
 
             {/* Enlarged Image with Zoom Effect */}
             <div
-              className={`w-full mb-4 overflow-hidden cursor-pointer ${
+              className={`w-full mb-3 sm:mb-4 overflow-hidden flex justify-center cursor-pointer ${
                 isImageZoomed ? "scale-150 transition-transform" : "scale-100"
               }`}
               // onClick={handleImageClick}
@@ -205,29 +205,34 @@ const Homepage = () => {
               <img
                 src={selectedLocation.image}
                 alt="Enlarged Location"
-                className="w-full h-auto object-cover rounded-lg transition-transform duration-300"
+                className="w-4/5 h-auto max-h-[50vh] object-contain rounded-lg transition-transform duration-300"
                 onContextMenu={handleImageContextMenu}
                 draggable="false"
               />
             </div>
 
-            <input
-              type="file"
-              onChange={handleImageUpload}
-              className="w-full mb-4 p-2 bg-gray-700 text-white rounded-lg"
-            />
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+              <input
+                type="file"
+                onChange={handleImageUpload}
+                className="w-full sm:w-4/5 p-2 bg-gray-700 text-white rounded-lg text-sm"
+                accept="image/*"
+              />
 
-            {/* Submit button disabled if image size is too large */}
-            <div className="flex justify-end">
-              <button
-                onClick={() => handleSubmit(selectedLocation.id)}
-                className={`bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition ${
-                  !image || notification ? "cursor-not-allowed opacity-50" : ""
-                }`}
-                disabled={!image || notification}
-              >
-                Submit
-              </button>
+              {/* Submit button disabled if image size is too large */}
+              <div className="w-full sm:w-auto">
+                <button
+                  onClick={() => handleSubmit(selectedLocation.id)}
+                  className={`w-full sm:w-auto bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition ${
+                    !image || notification
+                      ? "cursor-not-allowed opacity-50"
+                      : ""
+                  }`}
+                  disabled={!image || notification}
+                >
+                  Submit
+                </button>
+              </div>
             </div>
           </div>
         </div>
