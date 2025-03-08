@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef  } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { GiCardJoker } from "react-icons/gi";
@@ -36,6 +36,10 @@ const Homepage = () => {
   const [redBackgroundLocation, setRedBackgroundLocation] = useState(null);
   const [isImageZoomed, setIsImageZoomed] = useState(false);
 
+  const [firebaseImages, setFirebaseImages] = useState({});
+  const hasFetchedImages = useRef(false); // Prevent infinite re-renders
+
+  // Fetch team name from localStorage when component mounts
   useEffect(() => {
     const storedTeamName = localStorage.getItem("teamName");
     if (storedTeamName) {
@@ -43,30 +47,36 @@ const Homepage = () => {
     }
   }, []);
 
+  // Initialize locations from local data
   useEffect(() => {
     setLocations(data.map((location) => ({ ...location, submitted: false })));
   }, []);
 
+  // Fetch images from Firebase (only once per session)
   useEffect(() => {
-    if (!locations.length) return; // Ensure locations are loaded before fetching images
+    if (!teamName || hasFetchedImages.current) return; // Prevent unnecessary calls
 
-    const fetchImages = () => {
-      const imagesRef = ref(database, `uploads/${teamName}`);
-      onValue(imagesRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          const updatedLocations = locations.map((loc) => ({
-            ...loc,
-            submitted: data[loc.id] ? true : false, // If exists, mark as submitted
-            imageUrl: data[loc.id] ? Object.values(data[loc.id])[0].url : null,
-          }));
-          setLocations(updatedLocations);
-        }
-      });
-    };
+    const imagesRef = ref(database, `uploads/${teamName}`);
+    onValue(imagesRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      setFirebaseImages(data);
+      hasFetchedImages.current = true; // Mark as fetched to avoid re-fetching
+    });
 
-    fetchImages();
-  }, [locations]); // Run only when locations change
+  }, [teamName]); // Only run when teamName changes
+
+  // Update locations based on fetched images
+  useEffect(() => {
+    if (!locations.length || !Object.keys(firebaseImages).length) return;
+
+    const updatedLocations = locations.map((loc) => ({
+      ...loc,
+      submitted: firebaseImages[loc.id] ? true : false, // Check if image exists
+      imageUrl: firebaseImages[loc.id] ? Object.values(firebaseImages[loc.id])[0].url : null,
+    }));
+
+    setLocations(updatedLocations);
+  }, [firebaseImages]); // Update locations only when firebaseImages change
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -326,9 +336,19 @@ const Homepage = () => {
         </div>
       )}
 
-      <button onClick={handleLogout} className="bg-red-600 px-4 py-2 rounded-md text-white">
-        Logout
-      </button>
+      <div className="flex flex-col items-center mt-10">
+        <button
+          onClick={handleLogout}
+          className="bg-gradient-to-r from-red-500 to-red-700 
+              text-white font-bold px-6 py-3 rounded-full shadow-lg 
+              hover:scale-105 hover:shadow-xl transition-all duration-300 
+              ease-in-out flex items-center gap-2"
+        >
+          <GiCardJoker className="text-xl" />
+          Logout
+          <GiCardJoker className="text-xl" />
+        </button>
+      </div>
     </div>
   );
 };
