@@ -48,3 +48,12 @@ VITE_FIREBASE_APP_ID=your_firebase_app_id
 npm run dev
 ```
 Then open http://localhost:5173.
+
+--- 
+
+### 🔗 Related Repositories
+🎮 Admin Side Website: https://github.com/MeetRaut/LocationGuesser_admin.git
+
+This is the admin website where event organizers can:
+✔ **View team submissions**  
+✔ **Track uploaded images & timestamps**  
