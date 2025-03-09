@@ -54,6 +54,5 @@ Then open http://localhost:5173.
 ### 🔗 Related Repositories
 🎮 Admin Side Website: https://github.com/MeetRaut/LocationGuesser_admin.git
 
-This is the admin website where event organizers can:
 ✔ **View team submissions**  
 ✔ **Track uploaded images & timestamps**  
