@@ -22,8 +22,8 @@ A web-based location-based game where teams visit predefined locations, upload s
 ## ⚙️ Setup & Installation
 ### 1️⃣ Clone the Repository
 ```sh
-git clone https://github.com/YOUR_USERNAME/geo-locationgame.git
-cd geo-locationgame
+git clone https://github.com/MeetRaut/Decked_Out_Locationguesser_Game.git
+cd Decked_Out_Locationguesser_Game
 ```
 
 ### 2️⃣ Install Dependencies
