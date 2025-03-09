@@ -18,7 +18,6 @@ const teams = [
   { teamName: "Alpha", password: "alpha123", teamNumber: "1", email: "team1@example.com" },
   { teamName: "Beta", password: "beta123", teamNumber: "2", email: "team2@example.com" },
   { teamName: "Gamma", password: "gamma123", teamNumber: "3", email: "team3@example.com" },
-  { teamName: "3pati", password: "3pati123", teamNumber: "4", email: "3pati@gmail.com" },
 ];
 
 
